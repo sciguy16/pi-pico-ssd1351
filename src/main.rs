@@ -18,11 +18,10 @@ use embedded_graphics::{
     mono_font::{ascii::FONT_9X18_BOLD, MonoTextStyleBuilder},
     pixelcolor::Rgb565,
     prelude::*,
-    primitives::{PrimitiveStyleBuilder, StrokeAlignment},
+    primitives::{rectangle::Rectangle, PrimitiveStyleBuilder, StrokeAlignment},
     text::{Baseline, Text},
 };
 use embedded_hal::digital::v2::OutputPin;
-use embedded_hal::timer::CountDown;
 use embedded_time::duration::*;
 use embedded_time::rate::Extensions;
 use panic_halt as _;
@@ -125,8 +124,31 @@ fn main() -> ! {
         .stroke_alignment(StrokeAlignment::Inside)
         .build();
 
-    let mut count: u32 = 0;
+    // Empty the display:
+    DrawTarget::clear(&mut display, Rgb565::BLUE).unwrap();
 
+    // draw border
+    display
+        .bounding_box()
+        .into_styled(border_stroke)
+        .draw(&mut display)
+        .unwrap();
+
+    // Draw fixed text:
+    Text::with_baseline("Hello world!", Point::new(10, 0), text_style, Baseline::Top)
+        .draw(&mut display)
+        .unwrap();
+    Text::with_baseline("Hello Rust!", Point::new(10, 20), text_style, Baseline::Top)
+        .draw(&mut display)
+        .unwrap();
+
+    let blue = PrimitiveStyleBuilder::new()
+        // .stroke_color(Rgb565::WHITE)
+        // .stroke_width(3)
+        .fill_color(Rgb565::BLUE)
+        .build();
+
+    let mut count: u32 = 0;
     let mut buf = FmtBuf::new();
     loop {
         led.set_high().unwrap();
@@ -140,25 +162,14 @@ fn main() -> ! {
         info!("Counter: {}", count);
         count += 1;
 
-        // Empty the display:
-        DrawTarget::clear(&mut display, Rgb565::BLUE).unwrap();
+        // "clear" the bit with the number
 
-        display
-            .bounding_box()
-            .into_styled(border_stroke)
+        Rectangle::new(Point::new(90, 40), Size::new(30, 18))
+            .into_styled(blue)
             .draw(&mut display)
             .unwrap();
 
-        // Draw 3 lines of text:
-        Text::with_baseline("Hello world!", Point::zero(), text_style, Baseline::Top)
-            .draw(&mut display)
-            .unwrap();
-
-        Text::with_baseline("Hello Rust!", Point::new(0, 20), text_style, Baseline::Top)
-            .draw(&mut display)
-            .unwrap();
-
-        Text::with_baseline(buf.as_str(), Point::new(0, 40), text_style, Baseline::Top)
+        Text::with_baseline(buf.as_str(), Point::new(10, 40), text_style, Baseline::Top)
             .draw(&mut display)
             .unwrap();
 
