@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 #![no_std]
 #![no_main]
 
@@ -18,7 +22,9 @@ use embedded_graphics::{
     mono_font::{ascii::FONT_9X18_BOLD, MonoTextStyleBuilder},
     pixelcolor::Rgb565,
     prelude::*,
-    primitives::{rectangle::Rectangle, PrimitiveStyleBuilder, StrokeAlignment},
+    primitives::{
+        rectangle::Rectangle, PrimitiveStyleBuilder, StrokeAlignment,
+    },
     text::{Baseline, Text},
 };
 use embedded_hal::digital::v2::OutputPin;
@@ -80,7 +86,10 @@ fn main() -> ! {
 
     // let timer = hal::Timer::new(pac.TIMER, &mut pac.RESETS);
     // let mut delay = timer.count_down();
-    let mut delay = cortex_m::delay::Delay::new(core.SYST, clocks.system_clock.freq().integer());
+    let mut delay = cortex_m::delay::Delay::new(
+        core.SYST,
+        clocks.system_clock.freq().integer(),
+    );
 
     let mut led = pins.led.into_push_pull_output();
 
@@ -135,12 +144,22 @@ fn main() -> ! {
         .unwrap();
 
     // Draw fixed text:
-    Text::with_baseline("Hello world!", Point::new(10, 0), text_style, Baseline::Top)
-        .draw(&mut display)
-        .unwrap();
-    Text::with_baseline("Hello Rust!", Point::new(10, 20), text_style, Baseline::Top)
-        .draw(&mut display)
-        .unwrap();
+    Text::with_baseline(
+        "Hello world!",
+        Point::new(10, 0),
+        text_style,
+        Baseline::Top,
+    )
+    .draw(&mut display)
+    .unwrap();
+    Text::with_baseline(
+        "Hello Rust!",
+        Point::new(10, 20),
+        text_style,
+        Baseline::Top,
+    )
+    .draw(&mut display)
+    .unwrap();
 
     let blue = PrimitiveStyleBuilder::new()
         // .stroke_color(Rgb565::WHITE)
@@ -169,9 +188,14 @@ fn main() -> ! {
             .draw(&mut display)
             .unwrap();
 
-        Text::with_baseline(buf.as_str(), Point::new(10, 40), text_style, Baseline::Top)
-            .draw(&mut display)
-            .unwrap();
+        Text::with_baseline(
+            buf.as_str(),
+            Point::new(10, 40),
+            text_style,
+            Baseline::Top,
+        )
+        .draw(&mut display)
+        .unwrap();
 
         // display.flush().unwrap();
 
@@ -215,7 +239,8 @@ impl core::fmt::Write for FmtBuf {
         } else {
             s.len()
         };
-        self.buf[self.ptr..(self.ptr + len)].copy_from_slice(&s.as_bytes()[0..len]);
+        self.buf[self.ptr..(self.ptr + len)]
+            .copy_from_slice(&s.as_bytes()[0..len]);
         self.ptr += len;
         Ok(())
     }
